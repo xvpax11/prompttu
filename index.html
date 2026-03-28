@@ -3,34 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TU Dog Spotter - พิกัดน้องหมา มธ.</title>
+    <title>TU Animal Spotter - พิกัดน้องๆ ใน มธ.</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #f4f7f6; }
         #map { width: 100vw; height: 100vh; cursor: crosshair; }
         
-        /* 🎨 แผนที่คลีนๆ สบายตา สีไม่จัดจ้านเกินไป */
         .leaflet-tile-pane { filter: saturate(1.2) contrast(1.05); }
 
-        /* 💙 กล่องข้อมูล: ธีมสีน้ำเงิน "พร้อมธรรม" */
+        /* กล่องข้อมูล: ธีมสีน้ำเงิน "พร้อมธรรม" */
         .info-box {
             position: absolute; top: 15px; right: 15px; z-index: 1000;
             background: linear-gradient(135deg, #0A2A5E 0%, #1A56A6 100%); color: white; 
             padding: 15px 20px; border-radius: 12px;
             box-shadow: 0 4px 15px rgba(10, 42, 94, 0.4); border: 2px solid #4DA6FF; width: 220px;
         }
-        /* ตัดด้วยสีเหลืองทอง มธ. */
         .info-box h3 { margin: 0 0 5px 0; font-size: 1.25em; text-align: center; color: #FFD700; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
         .instruction { font-size: 0.85em; text-align: center; margin-bottom: 10px; color: #CCE6FF; font-weight: bold; }
         
-        /* ปุ่ม Login เรียบหรู */
         .btn-google { background: #ffffff; color: #0A2A5E; border: none; padding: 10px 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; font-family: 'Kanit', sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
         .btn-google:hover { background: #F0F5FF; transform: scale(1.02); }
 
-        .dog-icon { font-size: 26px; text-align: center; line-height: 26px; drop-shadow: 0 2px 2px rgba(0,0,0,0.5); }
+        /* ไอคอนสัตว์ทั่วไป */
+        .animal-icon { font-size: 26px; text-align: center; line-height: 26px; drop-shadow: 0 2px 2px rgba(0,0,0,0.5); }
 
-        /* 💙 Modal: โทนสีน้ำเงินเข้ม */
+        /* Modal: โทนสีน้ำเงินเข้ม */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,10,30,0.7); z-index: 1999; backdrop-filter: blur(2px); }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             background: linear-gradient(135deg, #0A2A5E 0%, #1A56A6 100%); color: white; 
@@ -40,7 +38,6 @@
         .modal h4 { margin-top: 0; margin-bottom: 20px; text-align: center; color: #FFD700; font-size: 1.3em; }
         .modal label { color: #FFD700; font-weight: bold; font-size: 0.9em; display: block; margin-top: 10px; }
         
-        /* ช่องกรอกข้อมูล คลีนๆ อ่านง่าย */
         .modal select, .modal input[type="text"], .modal input[type="number"] { 
             width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; 
             border: 1px solid #99CCFF; border-radius: 8px; background: #FFFFFF; 
@@ -53,7 +50,6 @@
         
         .btn-group { display: flex; justify-content: space-between; gap: 10px; }
         .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-family: 'Kanit', sans-serif; font-size: 1em; }
-        /* ปุ่ม Save สีเหลืองทองเด่นๆ */
         .btn-save { background: #FFD700; color: #0A2A5E; }
         .btn-save:hover { background: #FFC500; transform: scale(1.02); }
         .btn-cancel { background: #E6F0FF; color: #0A2A5E; }
@@ -64,7 +60,6 @@
         .btn-delete { background: #FF4D4D; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 10px; width: 100%; font-family: 'Kanit', sans-serif; font-weight: bold; }
         .btn-delete:hover { background: #E60000; }
 
-        /* 📍 ปุ่ม Location สีน้ำเงินทอง */
         .btn-location { 
             position: absolute; bottom: 25px; right: 15px; z-index: 1000; 
             background: linear-gradient(135deg, #0A2A5E 0%, #1A56A6 100%); 
@@ -81,6 +76,7 @@
             .instruction { font-size: 0.8em; }
             .modal { width: 90%; max-width: 300px; padding: 20px; }
             .modal h4 { font-size: 1.2em; }
+            .modal label { font-size: 0.8em; }
             .modal select, .modal input[type="text"], .modal input[type="number"] { padding: 8px; font-size: 0.9em; }
             .btn-location { padding: 10px 15px; font-size: 0.9em; bottom: 20px; right: 10px; }
         }
@@ -89,7 +85,7 @@
 <body>
 
     <div class="info-box">
-        <h3>🐶 TU Dog Spotter</h3>
+        <h3>🐾 TU Animal Spotter</h3>
         <p class="instruction">👇 แตะที่แผนที่เพื่อปักหมุด!</p>
         <hr style="border-color: #4DA6FF; margin: 15px 0;">
         
@@ -110,18 +106,28 @@
 
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="modal" id="inputModal">
-        <h4>🐶 ข้อมูลน้องหมา</h4>
-        <label>ชื่อน้องหมา (เลือกจากรายชื่อ):</label>
+        <h4>ข้อมูลการเจอ</h4>
+
+        <label>ชนิดของสัตว์:</label>
+        <select id="animalType">
+            <option value="dog">สุนัข 🐶</option>
+            <option value="cat">แมว 🐱</option>
+            <option value="monitor_lizard">ตัวเงินตัวทอง 🦎</option>
+        </select>
+        
+        <label>ชื่อ/ลักษณะ (เลือกจากรายชื่อ หรือพิมพ์เพิ่ม):</label>
         <select id="dogName">
             <option value="ไม่ทราบชื่อ / ตัวใหม่">-- ไม่ทราบชื่อ / ตัวใหม่ --</option>
             <option value="เจ้าดำ ตึก SC">เจ้าดำ ตึก SC</option>
             <option value="น้อนด่าง อินเตอร์โซน">น้อนด่าง อินเตอร์โซน</option>
             <option value="หมาส้ม โรงอาหาร">หมาส้ม โรงอาหาร</option>
             <option value="เจ้าขาว หอสมุด">เจ้าขาว หอสมุด</option>
-            <option value="แก๊งค์หน้าเซเว่น">แก๊งค์หน้าเซเว่น</option>
+            <option value="แมวส้ม สถาปัตย์">แมวส้ม สถาปัตย์</option>
+            <option value="แมวจร หน้าหอ">แมวจร หน้าหอ</option>
+            <option value="ตะกวด ริมน้ำ บร.">ตะกวด ริมน้ำ บร.</option>
         </select>
-        <label>ลักษณะเพิ่มเติม (ถ้ามี):</label>
-        <input type="text" id="dogDesc" placeholder="เช่น ใส่ปลอกคอสีแดง">
+        <label>ลักษณะเพิ่มเติม/รายละเอียดสถานที่:</label>
+        <input type="text" id="dogDesc" placeholder="เช่น ใส่ปลอกคอ, นอนอยู่ใต้พุ่มไม้">
         <label>จำนวน (ตัว):</label>
         <input type="number" id="dogCount" value="1" min="1">
         <label>รูปถ่าย (ถ้ามี):</label>
@@ -159,15 +165,36 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
         let currentUser = null;
-        let globalDogsData = null;
+        let globalAnimalsData = null; // เปลี่ยนชื่อตัวแปรให้ครอบคลุม
+
+        // 🌟 2. สร้างฟังก์ชันกำหนด Icon ตามชนิดของสัตว์
+        function getAnimalIcon(type) {
+            let iconHtml = '🐶'; // Default เป็นหมาเผื่อข้อมูลเก่า
+            if (type === 'cat') iconHtml = '🐱';
+            else if (type === 'monitor_lizard') iconHtml = '🦎';
+            
+            return L.divIcon({ 
+                html: iconHtml, 
+                className: 'animal-icon', // ใช้ Class กลางๆ
+                iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] 
+            });
+        }
+
+        // 🌟 3. สร้าง Mapping ชื่อภาษาไทย
+        const animalNamesTh = {
+            'dog': 'น้องหมา',
+            'cat': 'น้องแมว',
+            'monitor_lizard': 'ตัวเงินตัวทอง/ตะกวด'
+        };
 
         function renderMapMarkers() {
-            dogMarkersLayer.clearLayers();
-            if (!globalDogsData) return;
+            dogMarkersLayer.clearLayers(); // ยังใช้ชื่อ Layer เดิมได้
+            if (!globalAnimalsData) return;
 
-            for (let key in globalDogsData) {
-                const data = globalDogsData[key];
+            for (let key in globalAnimalsData) {
+                const data = globalAnimalsData[key];
                 const lat = data.lat; const lng = data.lng;
+                const type = data.animalType || 'dog'; // 🌟 ดึง Field ชนิดของสัตว์ (เผื่อข้อมูลเก่าเป็น dog)
                 const name = data.name || 'ไม่ทราบชื่อ'; const desc = data.description || '-';
                 const count = data.count || 1; const imageUrl = data.imageUrl || '';
                 const spotter = data.spotterName || 'ผู้ใช้ไม่ระบุตัวตน';
@@ -177,13 +204,18 @@
 
                 let deleteBtnHtml = '';
                 if (currentUser && currentUser.uid === spotterUid) {
-                    deleteBtnHtml = `<button class="btn-delete" onclick="deleteDogMarker('${key}', '${spotterUid}')">🗑️ ลบพิกัดนี้</button>`;
+                    deleteBtnHtml = `<button class="btn-delete" onclick="deleteAnimalMarker('${key}', '${spotterUid}')">🗑️ ลบพิกัดนี้</button>`;
                 }
 
-                const marker = L.marker([lat, lng], {icon: dogIcon})
+                // 🌟 ดึง Icon และชื่อไทยมาใช้
+                const dynamicIcon = getAnimalIcon(type);
+                const friendlyTypeName = animalNamesTh[type];
+
+                const marker = L.marker([lat, lng], {icon: dynamicIcon})
                     .bindPopup(`
-                        <b style="font-size:1.1em; color:#0A2A5E;">${name} (${count} ตัว) 🐶</b><br>
-                        <b>ลักษณะ:</b> ${desc}<br>
+                        <b style="font-size:1.1em; color:#0A2A5E;">${friendlyTypeName} ${count} ตัว 🐾</b><br>
+                        <b>ชื่อ/ลักษณะ:</b> ${name}<br>
+                        <b>ลักษณะเพิ่มเติม:</b> ${desc}<br>
                         ${imageHtml}
                         <div style="color:gray; font-size:0.8em; margin-top:5px;">เจอโดย: <b style="color:#1A56A6;">${spotter}</b><br>อัปเดตเมื่อ: ${timeString}</div>
                         ${deleteBtnHtml}
@@ -215,15 +247,9 @@
         document.getElementById('logoutBtn').onclick = () => { signOut(auth); };
 
         const map = L.map('map').setView([14.0686, 100.6067], 16);
-        
-        // 🌟 แผนที่ Voyager สว่าง สบายตา และมีสีของธรรมชาติ
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors & © CARTO'
-        }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors & © CARTO' }).addTo(map);
 
         const dogMarkersLayer = L.layerGroup().addTo(map);
-        const dogIcon = L.divIcon({ html: '🐶', className: 'dog-icon', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] });
 
         let userMarker = null;
         window.locateUser = function() {
@@ -236,19 +262,21 @@
             }
         };
 
-        window.deleteDogMarker = function(markerKey, ownerUid) {
+        // เปลี่ยนชื่อฟังก์ชันให้ครอบคลุม
+        window.deleteAnimalMarker = function(markerKey, ownerUid) {
             if (!currentUser) return alert("กรุณาล็อกอินก่อนลบพิกัดนะครับ! 🔑");
             if (currentUser.uid !== ownerUid) return alert("❌ คุณสามารถลบได้เฉพาะพิกัดที่คุณเป็นคนปักเท่านั้นครับ!");
             
             if(confirm("แน่ใจหรือไม่ว่าต้องการลบพิกัดนี้?")) {
-                const markerRef = ref(db, 'dogs_locations/' + markerKey);
+                const markerRef = ref(db, 'tu_animals/' + markerKey);
                 remove(markerRef).catch((error) => console.error(error));
             }
         };
 
-        const dogsRef = ref(db, 'dogs_locations');
-        onValue(dogsRef, (snapshot) => {
-            globalDogsData = snapshot.val();
+        // 🌟 4. เปลี่ยน node ที่ดึงข้อมูล เป็นชื่อกลางๆ เช่น 'tu_animals'
+        const animalsRef = ref(db, 'tu_animals'); // **แนะนำให้เริ่มปักใหม่ที่ Node นี้**
+        onValue(animalsRef, (snapshot) => {
+            globalAnimalsData = snapshot.val();
             renderMapMarkers(); 
         });
 
@@ -262,13 +290,27 @@
             modal.classList.add('active'); overlay.classList.add('active');
         });
 
-        document.getElementById('cancelBtn').onclick = () => { modal.classList.remove('active'); overlay.classList.remove('active'); };
+        function closeModal() {
+            modal.classList.remove('active'); overlay.classList.remove('active');
+            document.getElementById('animalType').selectedIndex = 0; // Reset ชนิดสัตว์
+            document.getElementById('dogName').selectedIndex = 0;
+            document.getElementById('dogDesc').value = ''; 
+            document.getElementById('dogCount').value = '1';
+            document.getElementById('dogImage').value = ''; 
+            saveBtn.innerText = "บันทึกพิกัด"; saveBtn.disabled = false;
+        }
+
+        document.getElementById('cancelBtn').onclick = closeModal;
 
         document.getElementById('saveBtn').onclick = async function() {
             if (!tempLatLng || !currentUser) return;
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.innerText = "กำลังดำเนินการ..."; saveBtn.disabled = true;
 
+            const selectedAnimalType = document.getElementById('animalType').value; // 🌟 5. ดึงค่าชนิดของสัตว์
+            const selectedName = document.getElementById('dogName').value;
+            const descInput = document.getElementById('dogDesc').value;
+            const countInput = document.getElementById('dogCount').value;
             const file = document.getElementById('dogImage').files[0];
             let downloadUrl = "";
 
@@ -280,22 +322,23 @@
                     if (result.success) downloadUrl = result.data.url;
                 }
 
-                await push(dogsRef, {
+                // บันทึกลง Node กลาง 'tu_animals'
+                await push(animalsRef, {
                     lat: tempLatLng.lat, lng: tempLatLng.lng,
-                    name: document.getElementById('dogName').value, 
-                    description: document.getElementById('dogDesc').value || '-', 
-                    count: document.getElementById('dogCount').value,
+                    animalType: selectedAnimalType, // 🌟 6. บันทึก field ชนิดสัตว์ลงฐานข้อมูล
+                    name: selectedName, 
+                    description: descInput || '-', 
+                    count: countInput,
                     imageUrl: downloadUrl, 
                     spotterName: currentUser.displayName,
                     spotterUid: currentUser.uid,
                     timestamp: Date.now()
                 });
                 
-                modal.classList.remove('active'); overlay.classList.remove('active');
-                document.getElementById('dogDesc').value = ''; document.getElementById('dogImage').value = '';
+                closeModal();
             } catch (error) {
+                console.error(error);
                 alert("เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ");
-            } finally {
                 saveBtn.innerText = "บันทึกพิกัด"; saveBtn.disabled = false;
             }
         };
@@ -306,7 +349,7 @@
                 var alertBox = document.createElement('div');
                 alertBox.style.position = 'fixed'; alertBox.style.top = '0'; alertBox.style.left = '0'; alertBox.style.width = '100vw'; alertBox.style.height = '100vh'; alertBox.style.backgroundColor = 'rgba(10, 42, 94, 0.95)'; alertBox.style.color = 'white'; alertBox.style.zIndex = '9999'; alertBox.style.display = 'flex'; alertBox.style.flexDirection = 'column'; alertBox.style.justifyContent = 'center'; alertBox.style.alignItems = 'center'; alertBox.style.padding = '20px'; alertBox.style.textAlign = 'center'; alertBox.style.fontFamily = "'Kanit', sans-serif";
                 alertBox.innerHTML = `
-                    <h2 style="font-size: 2.5em; margin-bottom: 10px; color: #FFD700; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);">🐶 ⚠️</h2>
+                    <h2 style="font-size: 2.5em; margin-bottom: 10px; color: #FFD700; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);">🐾 ⚠️</h2>
                     <h3 style="margin-bottom: 20px; color: #FFFFFF;">กรุณาเปิดในเบราว์เซอร์หลัก</h3>
                     <p style="font-size: 1.1em; max-width: 300px; color: #CCE6FF;">เพื่อการใช้งานที่สมบูรณ์แบบและล็อกอินได้<br><br>กรุณากดไอคอน <b>จุด 3 จุด (...)</b> หรือ <b>เข็มทิศ</b> มุมหน้าจอ<br><br>แล้วเลือก <b>"เปิดในเบราว์เซอร์ (Open in Safari / Chrome)"</b></p>
                     <button onclick="this.parentElement.style.display='none'" style="margin-top: 30px; padding: 12px 25px; background: #FFD700; color: #0A2A5E; border: none; border-radius: 12px; font-weight: bold; font-family: 'Kanit', sans-serif; font-size: 1.1em; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">เข้าใจแล้ว</button>
