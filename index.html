@@ -1,0 +1,279 @@
+<!DOC<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TU Dog Spotter - พิกัดน้องหมา มธ.</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #f4f7f6; }
+        #map { width: 100vw; height: 100vh; cursor: crosshair; }
+        
+        /* 🎨 เปลี่ยนแผนที่ปกติให้เป็นสีสันสดใสแบบการ์ตูน */
+        .leaflet-tile-pane { filter: saturate(2) contrast(1.1) brightness(1.05) sepia(0.2) hue-rotate(-5deg); }
+
+        /* 🔵 กล่องข้อมูล + ระบบล็อกอิน */
+        .info-box {
+            position: absolute; top: 15px; right: 15px; z-index: 1000;
+            background: #0033FF; color: white; padding: 15px 20px; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 2px solid #0022CC; width: 220px;
+        }
+        .info-box h3 { margin: 0 0 5px 0; font-size: 1.2em; text-align: center; }
+        .instruction { font-size: 0.85em; color: #E6ECFF; text-align: center; margin-bottom: 10px; }
+        
+        /* ปุ่มล็อกอิน */
+        .btn-google {
+            background: #ffffff; color: #0033FF; border: none; padding: 8px 15px;
+            border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer;
+            font-family: 'Kanit', sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s;
+        }
+        .btn-google:hover { background: #f0f0f0; transform: scale(1.02); }
+
+        .dog-icon { font-size: 26px; text-align: center; line-height: 26px; drop-shadow: 0 2px 2px rgba(0,0,0,0.5); }
+
+        /* สไตล์ Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,10,50,0.6); z-index: 1999; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 16px; z-index: 2000; width: 85%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .modal.active, .modal-overlay.active { display: block; }
+        .modal h4 { margin-top: 0; margin-bottom: 20px; text-align: center; color: #0033FF; font-size: 1.2em; }
+        .modal label { color: #0033FF; font-weight: bold; font-size: 0.9em; display: block; margin-top: 10px; }
+        
+        .modal select, .modal input[type="text"], .modal input[type="number"] { 
+            width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; 
+            border: 1px solid #809FFF; border-radius: 8px; background: #F0F5FF; font-family: 'Kanit', sans-serif; color: #0033FF;
+        }
+        .modal input[type="file"] { margin: 5px 0 20px 0; width: 100%; font-size: 0.9em; color: #0033FF; }
+        
+        .btn-group { display: flex; justify-content: space-between; gap: 10px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-family: 'Kanit', sans-serif; }
+        .btn-save { background: #0033FF; color: white; }
+        .btn-save:hover { background: #0022CC; }
+        .btn-cancel { background: #E6ECFF; color: #0033FF; }
+        .btn-cancel:hover { background: #B3CCFF; }
+        .btn:disabled { background: #99B3FF; cursor: not-allowed; }
+        
+        .popup-img { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid #e0e0e0; }
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 10px; width: 100%; font-family: 'Kanit', sans-serif; }
+        .btn-delete:hover { background: #cc0000; }
+
+        .btn-location { position: absolute; bottom: 25px; right: 15px; z-index: 1000; background: #0033FF; color: white; padding: 12px 18px; border: none; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: bold; font-size: 1em; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-location:hover { background: #0022CC; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <div class="info-box">
+        <h3>🐶 PROMPTTU Dog Spotter 🐶</h3>
+        <p class="instruction">👇 แตะที่แผนที่เพื่อปักหมุด!</p>
+        <hr style="border-color: #3366FF; margin: 15px 0;">
+        
+        <div id="auth-section">
+            <button id="loginBtn" class="btn-google">🔑 ล็อกอินด้วย Google</button>
+            <div id="userInfo" style="display: none; align-items: center; gap: 10px;">
+                <img id="userPic" src="" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid white;">
+                <div>
+                    <div id="userName" style="font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;"></div>
+                    <button id="logoutBtn" style="background: transparent; border: none; color: #FFB3B3; cursor: pointer; padding: 0; font-size: 0.8em; text-decoration: underline; font-family: 'Kanit', sans-serif;">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-location" onclick="locateUser()">📍 ตำแหน่งของฉัน</button>
+    <div id="map"></div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="inputModal">
+        <h4>🐶 ข้อมูลน้องหมา</h4>
+        <label>ชื่อน้องหมา (เลือกจากรายชื่อ):</label>
+        <select id="dogName">
+            <option value="ไม่ทราบชื่อ / ตัวใหม่">-- ไม่ทราบชื่อ / ตัวใหม่ --</option>
+            <option value="เจ้าดำ ตึก SC">เจ้าดำ ตึก SC</option>
+            <option value="น้อนด่าง อินเตอร์โซน">น้อนด่าง อินเตอร์โซน</option>
+            <option value="หมาส้ม โรงอาหาร">หมาส้ม โรงอาหาร</option>
+            <option value="เจ้าขาว หอสมุด">เจ้าขาว หอสมุด</option>
+            <option value="แก๊งค์หน้าเซเว่น">แก๊งค์หน้าเซเว่น</option>
+        </select>
+        <label>ลักษณะเพิ่มเติม (ถ้ามี):</label>
+        <input type="text" id="dogDesc" placeholder="เช่น ใส่ปลอกคอสีแดง">
+        <label>จำนวน (ตัว):</label>
+        <input type="number" id="dogCount" value="1" min="1">
+        <label>รูปถ่าย (ถ้ามี):</label>
+        <input type="file" id="dogImage" accept="image/*">
+        <div class="btn-group">
+            <button class="btn btn-cancel" id="cancelBtn">ยกเลิก</button>
+            <button class="btn btn-save" id="saveBtn">บันทึกพิกัด</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        // 🌟 เรียกใช้ระบบ Authentication เพิ่มเติม
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        
+        // 🛑 1. ใส่ Config ของ Firebase ตรงนี้
+        const firebaseConfig = {
+  apiKey: "AIzaSyCAdPb47V586FtJ1Mde-v3nhy4QN3Qj1i0",
+  authDomain: "tu-dog-spotter.firebaseapp.com",
+  databaseURL: "https://tu-dog-spotter-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tu-dog-spotter",
+  storageBucket: "tu-dog-spotter.firebasestorage.app",
+  messagingSenderId: "857595973549",
+  appId: "1:857595973549:web:206633a42f2d487086db24"
+        };
+
+        // 🛑 2. ใส่ API Key ของ ImgBB ตรงนี้
+        const IMGBB_API_KEY = "6a5787ed71b7da00961d04d9a7a6ab21"; 
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // --- 🌟 ตั้งค่าระบบ Login ---
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        let currentUser = null;
+
+        // ตรวจสอบว่าใครล็อกอินอยู่
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user; // จำว่าใครล็อกอิน
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userPic').src = user.photoURL; // ดึงรูปโปรไฟล์ Google
+                document.getElementById('userName').innerText = user.displayName; // ดึงชื่อ Google
+            } else {
+                currentUser = null;
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        });
+
+        // กดปุ่มล็อกอิน
+        document.getElementById('loginBtn').onclick = () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                console.error("ล็อกอินไม่สำเร็จ:", error);
+                alert("เกิดข้อผิดพลาดในการล็อกอินครับ");
+            });
+        };
+
+        // กดปุ่มออกจากระบบ
+        document.getElementById('logoutBtn').onclick = () => {
+            signOut(auth);
+        };
+        // ------------------------------
+
+        const map = L.map('map').setView([14.0686, 100.6067], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+
+        const dogMarkersLayer = L.layerGroup().addTo(map);
+        const dogIcon = L.divIcon({ html: '🐶', className: 'dog-icon', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] });
+
+        let userMarker = null;
+        window.locateUser = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    map.setView([position.coords.latitude, position.coords.longitude], 17);
+                    if (userMarker) userMarker.setLatLng([position.coords.latitude, position.coords.longitude]);
+                    else userMarker = L.circleMarker([position.coords.latitude, position.coords.longitude], { radius: 8, fillColor: "#0033FF", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 0.9 }).addTo(map).bindPopup("📍 คุณอยู่ที่นี่").openPopup();
+                }, function() { alert("กรุณากดอนุญาตให้ GPS ของคุณก่อนนะครับ"); });
+            }
+        };
+
+        // ฟังก์ชันลบพิกัด (เช็คก่อนว่าล็อกอินหรือยัง)
+        window.deleteDogMarker = function(markerKey) {
+            if (!currentUser) {
+                alert("กรุณาล็อกอินก่อนลบพิกัดนะครับ! 🔑");
+                return;
+            }
+            if(confirm("แน่ใจหรือไม่ว่าต้องการลบพิกัดนี้?")) {
+                const markerRef = ref(db, 'dogs_locations/' + markerKey);
+                remove(markerRef).catch((error) => console.error(error));
+            }
+        };
+
+        // ดึงข้อมูลมาแสดงบนแผนที่
+        const dogsRef = ref(db, 'dogs_locations');
+        onValue(dogsRef, (snapshot) => {
+            dogMarkersLayer.clearLayers();
+            const data = snapshot.val();
+            if (data) {
+                for (let key in data) {
+                    const lat = data[key].lat; const lng = data[key].lng;
+                    const name = data[key].name || 'ไม่ทราบชื่อ'; const desc = data[key].description || '-';
+                    const count = data[key].count || 1; const imageUrl = data[key].imageUrl || '';
+                    const spotter = data[key].spotterName || 'ผู้ใช้ไม่ระบุตัวตน'; // ดึงชื่อคนเจอ
+                    const timeString = new Date(data[key].timestamp).toLocaleTimeString('th-TH');
+                    const imageHtml = imageUrl ? `<img src="${imageUrl}" class="popup-img">` : '';
+
+                    const marker = L.marker([lat, lng], {icon: dogIcon})
+                        .bindPopup(`
+                            <b style="font-size:1.1em; color:#0033FF;">${name} (${count} ตัว) 🐶</b><br>
+                            <b>ลักษณะ:</b> ${desc}<br>
+                            ${imageHtml}
+                            <div style="color:gray; font-size:0.8em; margin-top:5px;">เจอโดย: <b>${spotter}</b><br>อัปเดตเมื่อ: ${timeString}</div>
+                            <button class="btn-delete" onclick="deleteDogMarker('${key}')">🗑️ ลบพิกัดนี้</button>
+                        `);
+                    dogMarkersLayer.addLayer(marker);
+                }
+            }
+        });
+
+        let tempLatLng = null;
+        const modal = document.getElementById('inputModal');
+        const overlay = document.getElementById('modalOverlay');
+
+        // คลิกแผนที่เพื่อปักหมุด
+        map.on('click', function(e) {
+            // 🌟 เช็คก่อนเลยว่าล็อกอินหรือยัง ถ้ายังให้เด้งเตือน
+            if (!currentUser) {
+                alert("กรุณาล็อกอินด้วย Google ก่อนปักหมุดนะครับ 🐶🔑");
+                return;
+            }
+            tempLatLng = e.latlng;
+            modal.classList.add('active'); overlay.classList.add('active');
+        });
+
+        document.getElementById('cancelBtn').onclick = () => { modal.classList.remove('active'); overlay.classList.remove('active'); };
+
+        document.getElementById('saveBtn').onclick = async function() {
+            if (!tempLatLng || !currentUser) return;
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.innerText = "กำลังดำเนินการ..."; saveBtn.disabled = true;
+
+            const file = document.getElementById('dogImage').files[0];
+            let downloadUrl = "";
+
+            try {
+                if (file) {
+                    const formData = new FormData(); formData.append("image", file);
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+                    const result = await response.json();
+                    if (result.success) downloadUrl = result.data.url;
+                }
+
+                // 🌟 บันทึกชื่อคนเจอ (Spotter) ลงไปด้วย
+                await push(dogsRef, {
+                    lat: tempLatLng.lat, lng: tempLatLng.lng,
+                    name: document.getElementById('dogName').value, 
+                    description: document.getElementById('dogDesc').value || '-', 
+                    count: document.getElementById('dogCount').value,
+                    imageUrl: downloadUrl, 
+                    spotterName: currentUser.displayName, // เซฟชื่อ Google ของคนเจอ
+                    timestamp: Date.now()
+                });
+                
+                modal.classList.remove('active'); overlay.classList.remove('active');
+                document.getElementById('dogDesc').value = ''; document.getElementById('dogImage').value = '';
+            } catch (error) {
+                alert("เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ");
+            } finally {
+                saveBtn.innerText = "บันทึกพิกัด"; saveBtn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
