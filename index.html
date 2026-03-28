@@ -1,4 +1,4 @@
-<!DOC<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -22,12 +22,7 @@
         .info-box h3 { margin: 0 0 5px 0; font-size: 1.2em; text-align: center; }
         .instruction { font-size: 0.85em; color: #E6ECFF; text-align: center; margin-bottom: 10px; }
         
-        /* ปุ่มล็อกอิน */
-        .btn-google {
-            background: #ffffff; color: #0033FF; border: none; padding: 8px 15px;
-            border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer;
-            font-family: 'Kanit', sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s;
-        }
+        .btn-google { background: #ffffff; color: #0033FF; border: none; padding: 8px 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; font-family: 'Kanit', sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
         .btn-google:hover { background: #f0f0f0; transform: scale(1.02); }
 
         .dog-icon { font-size: 26px; text-align: center; line-height: 26px; drop-shadow: 0 2px 2px rgba(0,0,0,0.5); }
@@ -39,10 +34,7 @@
         .modal h4 { margin-top: 0; margin-bottom: 20px; text-align: center; color: #0033FF; font-size: 1.2em; }
         .modal label { color: #0033FF; font-weight: bold; font-size: 0.9em; display: block; margin-top: 10px; }
         
-        .modal select, .modal input[type="text"], .modal input[type="number"] { 
-            width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; 
-            border: 1px solid #809FFF; border-radius: 8px; background: #F0F5FF; font-family: 'Kanit', sans-serif; color: #0033FF;
-        }
+        .modal select, .modal input[type="text"], .modal input[type="number"] { width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #809FFF; border-radius: 8px; background: #F0F5FF; font-family: 'Kanit', sans-serif; color: #0033FF; }
         .modal input[type="file"] { margin: 5px 0 20px 0; width: 100%; font-size: 0.9em; color: #0033FF; }
         
         .btn-group { display: flex; justify-content: space-between; gap: 10px; }
@@ -64,7 +56,7 @@
 <body>
 
     <div class="info-box">
-        <h3>🐶 PROMPTTU Dog Spotter 🐶</h3>
+        <h3>🐶 TU Dog Spotter</h3>
         <p class="instruction">👇 แตะที่แผนที่เพื่อปักหมุด!</p>
         <hr style="border-color: #3366FF; margin: 15px 0;">
         
@@ -112,7 +104,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-        // 🌟 เรียกใช้ระบบ Authentication เพิ่มเติม
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
         // 🛑 1. ใส่ Config ของ Firebase ตรงนี้
@@ -132,39 +123,64 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // --- 🌟 ตั้งค่าระบบ Login ---
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
         let currentUser = null;
+        let globalDogsData = null; // 🌟 เก็บข้อมูลพิกัดทั้งหมดไว้ในตัวแปรนี้
 
-        // ตรวจสอบว่าใครล็อกอินอยู่
+        // 🌟 ฟังก์ชันวาดหมุดบนแผนที่ (สร้างแยกออกมาเพื่อให้เรียกใช้ซ้ำได้)
+        function renderMapMarkers() {
+            dogMarkersLayer.clearLayers();
+            if (!globalDogsData) return;
+
+            for (let key in globalDogsData) {
+                const data = globalDogsData[key];
+                const lat = data.lat; const lng = data.lng;
+                const name = data.name || 'ไม่ทราบชื่อ'; const desc = data.description || '-';
+                const count = data.count || 1; const imageUrl = data.imageUrl || '';
+                const spotter = data.spotterName || 'ผู้ใช้ไม่ระบุตัวตน';
+                const spotterUid = data.spotterUid || 'unknown_uid'; // ดึง UID ของคนปักหมุด
+                const timeString = new Date(data.timestamp).toLocaleTimeString('th-TH');
+                const imageHtml = imageUrl ? `<img src="${imageUrl}" class="popup-img">` : '';
+
+                let deleteBtnHtml = '';
+                // 🌟 เช็คว่าล็อกอินอยู่ไหม? และ UID ตรงกับเจ้าของหมุดไหม?
+                if (currentUser && currentUser.uid === spotterUid) {
+                    deleteBtnHtml = `<button class="btn-delete" onclick="deleteDogMarker('${key}', '${spotterUid}')">🗑️ ลบพิกัดนี้</button>`;
+                }
+
+                const marker = L.marker([lat, lng], {icon: dogIcon})
+                    .bindPopup(`
+                        <b style="font-size:1.1em; color:#0033FF;">${name} (${count} ตัว) 🐶</b><br>
+                        <b>ลักษณะ:</b> ${desc}<br>
+                        ${imageHtml}
+                        <div style="color:gray; font-size:0.8em; margin-top:5px;">เจอโดย: <b>${spotter}</b><br>อัปเดตเมื่อ: ${timeString}</div>
+                        ${deleteBtnHtml} `);
+                dogMarkersLayer.addLayer(marker);
+            }
+        }
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user; // จำว่าใครล็อกอิน
+                currentUser = user; 
                 document.getElementById('loginBtn').style.display = 'none';
                 document.getElementById('userInfo').style.display = 'flex';
-                document.getElementById('userPic').src = user.photoURL; // ดึงรูปโปรไฟล์ Google
-                document.getElementById('userName').innerText = user.displayName; // ดึงชื่อ Google
+                document.getElementById('userPic').src = user.photoURL; 
+                document.getElementById('userName').innerText = user.displayName; 
             } else {
                 currentUser = null;
                 document.getElementById('loginBtn').style.display = 'block';
                 document.getElementById('userInfo').style.display = 'none';
             }
+            renderMapMarkers(); // 🌟 อัปเดตแผนที่ใหม่ทุกครั้งที่มีการล็อกอิน/ล็อกเอาท์
         });
 
-        // กดปุ่มล็อกอิน
         document.getElementById('loginBtn').onclick = () => {
             signInWithPopup(auth, provider).catch((error) => {
-                console.error("ล็อกอินไม่สำเร็จ:", error);
-                alert("เกิดข้อผิดพลาดในการล็อกอินครับ");
+                console.error("ล็อกอินไม่สำเร็จ:", error); alert("เกิดข้อผิดพลาดในการล็อกอินครับ");
             });
         };
-
-        // กดปุ่มออกจากระบบ
-        document.getElementById('logoutBtn').onclick = () => {
-            signOut(auth);
-        };
-        // ------------------------------
+        document.getElementById('logoutBtn').onclick = () => { signOut(auth); };
 
         const map = L.map('map').setView([14.0686, 100.6067], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
@@ -183,56 +199,30 @@
             }
         };
 
-        // ฟังก์ชันลบพิกัด (เช็คก่อนว่าล็อกอินหรือยัง)
-        window.deleteDogMarker = function(markerKey) {
-            if (!currentUser) {
-                alert("กรุณาล็อกอินก่อนลบพิกัดนะครับ! 🔑");
-                return;
-            }
+        // 🌟 อัปเดตฟังก์ชันลบพิกัด (ดักอีกชั้นเผื่อพลาด)
+        window.deleteDogMarker = function(markerKey, ownerUid) {
+            if (!currentUser) return alert("กรุณาล็อกอินก่อนลบพิกัดนะครับ! 🔑");
+            if (currentUser.uid !== ownerUid) return alert("❌ คุณสามารถลบได้เฉพาะพิกัดที่คุณเป็นคนปักเท่านั้นครับ!");
+            
             if(confirm("แน่ใจหรือไม่ว่าต้องการลบพิกัดนี้?")) {
                 const markerRef = ref(db, 'dogs_locations/' + markerKey);
                 remove(markerRef).catch((error) => console.error(error));
             }
         };
 
-        // ดึงข้อมูลมาแสดงบนแผนที่
+        // ดึงข้อมูลมาเก็บไว้แล้วสั่งวาด
         const dogsRef = ref(db, 'dogs_locations');
         onValue(dogsRef, (snapshot) => {
-            dogMarkersLayer.clearLayers();
-            const data = snapshot.val();
-            if (data) {
-                for (let key in data) {
-                    const lat = data[key].lat; const lng = data[key].lng;
-                    const name = data[key].name || 'ไม่ทราบชื่อ'; const desc = data[key].description || '-';
-                    const count = data[key].count || 1; const imageUrl = data[key].imageUrl || '';
-                    const spotter = data[key].spotterName || 'ผู้ใช้ไม่ระบุตัวตน'; // ดึงชื่อคนเจอ
-                    const timeString = new Date(data[key].timestamp).toLocaleTimeString('th-TH');
-                    const imageHtml = imageUrl ? `<img src="${imageUrl}" class="popup-img">` : '';
-
-                    const marker = L.marker([lat, lng], {icon: dogIcon})
-                        .bindPopup(`
-                            <b style="font-size:1.1em; color:#0033FF;">${name} (${count} ตัว) 🐶</b><br>
-                            <b>ลักษณะ:</b> ${desc}<br>
-                            ${imageHtml}
-                            <div style="color:gray; font-size:0.8em; margin-top:5px;">เจอโดย: <b>${spotter}</b><br>อัปเดตเมื่อ: ${timeString}</div>
-                            <button class="btn-delete" onclick="deleteDogMarker('${key}')">🗑️ ลบพิกัดนี้</button>
-                        `);
-                    dogMarkersLayer.addLayer(marker);
-                }
-            }
+            globalDogsData = snapshot.val();
+            renderMapMarkers(); 
         });
 
         let tempLatLng = null;
         const modal = document.getElementById('inputModal');
         const overlay = document.getElementById('modalOverlay');
 
-        // คลิกแผนที่เพื่อปักหมุด
         map.on('click', function(e) {
-            // 🌟 เช็คก่อนเลยว่าล็อกอินหรือยัง ถ้ายังให้เด้งเตือน
-            if (!currentUser) {
-                alert("กรุณาล็อกอินด้วย Google ก่อนปักหมุดนะครับ 🐶🔑");
-                return;
-            }
+            if (!currentUser) return alert("กรุณาล็อกอินด้วย Google ก่อนปักหมุดนะครับ 🐶🔑");
             tempLatLng = e.latlng;
             modal.classList.add('active'); overlay.classList.add('active');
         });
@@ -255,14 +245,14 @@
                     if (result.success) downloadUrl = result.data.url;
                 }
 
-                // 🌟 บันทึกชื่อคนเจอ (Spotter) ลงไปด้วย
                 await push(dogsRef, {
                     lat: tempLatLng.lat, lng: tempLatLng.lng,
                     name: document.getElementById('dogName').value, 
                     description: document.getElementById('dogDesc').value || '-', 
                     count: document.getElementById('dogCount').value,
                     imageUrl: downloadUrl, 
-                    spotterName: currentUser.displayName, // เซฟชื่อ Google ของคนเจอ
+                    spotterName: currentUser.displayName,
+                    spotterUid: currentUser.uid, // 🌟 เพิ่มบรรทัดนี้: บันทึกรหัสประจำตัวของคนปักลงไปด้วย!
                     timestamp: Date.now()
                 });
                 
@@ -272,6 +262,22 @@
                 alert("เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ");
             } finally {
                 saveBtn.innerText = "บันทึกพิกัด"; saveBtn.disabled = false;
+            }
+        };
+
+        // --- 🌟 ระบบแจ้งเตือนให้เปิด Safari/Chrome ถ้าอยู่ใน IG/LINE ---
+        window.onload = function() {
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            if (ua.indexOf('Instagram') > -1 || ua.indexOf('Line') > -1) {
+                var alertBox = document.createElement('div');
+                alertBox.style.position = 'fixed'; alertBox.style.top = '0'; alertBox.style.left = '0'; alertBox.style.width = '100vw'; alertBox.style.height = '100vh'; alertBox.style.backgroundColor = 'rgba(0, 51, 255, 0.95)'; alertBox.style.color = 'white'; alertBox.style.zIndex = '9999'; alertBox.style.display = 'flex'; alertBox.style.flexDirection = 'column'; alertBox.style.justifyContent = 'center'; alertBox.style.alignItems = 'center'; alertBox.style.padding = '20px'; alertBox.style.textAlign = 'center'; alertBox.style.fontFamily = "'Kanit', sans-serif";
+                alertBox.innerHTML = `
+                    <h2 style="font-size: 2em; margin-bottom: 10px;">🐶 ⚠️</h2>
+                    <h3 style="margin-bottom: 20px;">กรุณาเปิดในเบราว์เซอร์หลัก</h3>
+                    <p style="font-size: 1.1em; max-width: 300px;">เพื่อการใช้งานที่สมบูรณ์แบบและล็อกอินได้<br><br>กรุณากดไอคอน <b>จุด 3 จุด (...)</b> หรือ <b>เข็มทิศ</b> มุมหน้าจอ<br><br>แล้วเลือก <b>"เปิดในเบราว์เซอร์ (Open in Safari / Chrome)"</b></p>
+                    <button onclick="this.parentElement.style.display='none'" style="margin-top: 30px; padding: 10px 20px; background: white; color: #0033FF; border: none; border-radius: 8px; font-weight: bold; font-family: 'Kanit', sans-serif;">เข้าใจแล้ว</button>
+                `;
+                document.body.appendChild(alertBox);
             }
         };
     </script>
