@@ -7,63 +7,80 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* 🌟 ปรับพื้นหลังกลับมาเป็นสีสว่าง */
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #f4f7f6; }
         #map { width: 100vw; height: 100vh; cursor: crosshair; }
         
-        /* 🎨 🌟 เร่งสีแผนที่นิดๆ ให้สีเขียวต้นไม้กับสีฟ้าน้ำดูสดใสขึ้นแบบกำลังดี */
-        .leaflet-tile-pane {
-            filter: saturate(1.3) contrast(1.05);
-        }
-        /* ---------------------------------------------------- */
+        /* 🎨 แผนที่คลีนๆ สบายตา สีไม่จัดจ้านเกินไป */
+        .leaflet-tile-pane { filter: saturate(1.2) contrast(1.05); }
 
-        /* 🔵 🌟 กล่องข้อมูลมีสีไล่ระดับสดใส 🌟 */
+        /* 💙 กล่องข้อมูล: ธีมสีน้ำเงิน "พร้อมธรรม" */
         .info-box {
             position: absolute; top: 15px; right: 15px; z-index: 1000;
-            background: linear-gradient(135deg, #0050FF 0%, #0033FF 100%); color: white; padding: 15px 20px; border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 2px solid #3366FF; width: 220px;
+            background: linear-gradient(135deg, #0A2A5E 0%, #1A56A6 100%); color: white; 
+            padding: 15px 20px; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(10, 42, 94, 0.4); border: 2px solid #4DA6FF; width: 220px;
         }
-        .info-box h3 { margin: 0 0 5px 0; font-size: 1.2em; text-align: center; color: #FFD700; }
-        .instruction { font-size: 0.85em; text-align: center; margin-bottom: 10px; color: #FFA500; font-weight: bold; }
+        /* ตัดด้วยสีเหลืองทอง มธ. */
+        .info-box h3 { margin: 0 0 5px 0; font-size: 1.25em; text-align: center; color: #FFD700; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .instruction { font-size: 0.85em; text-align: center; margin-bottom: 10px; color: #CCE6FF; font-weight: bold; }
         
-        .btn-google { background: #ffffff; color: #0033FF; border: none; padding: 8px 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; font-family: 'Kanit', sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
-        .btn-google:hover { background: #f0f0f0; transform: scale(1.02); }
+        /* ปุ่ม Login เรียบหรู */
+        .btn-google { background: #ffffff; color: #0A2A5E; border: none; padding: 10px 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; font-family: 'Kanit', sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
+        .btn-google:hover { background: #F0F5FF; transform: scale(1.02); }
 
         .dog-icon { font-size: 26px; text-align: center; line-height: 26px; drop-shadow: 0 2px 2px rgba(0,0,0,0.5); }
 
-        /* สไตล์ Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,10,50,0.6); z-index: 1999; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #0050FF 0%, #0033FF 100%); color: white; padding: 25px; border-radius: 16px; z-index: 2000; width: 85%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 2px solid #3366FF; }
+        /* 💙 Modal: โทนสีน้ำเงินเข้ม */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,10,30,0.7); z-index: 1999; backdrop-filter: blur(2px); }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: linear-gradient(135deg, #0A2A5E 0%, #1A56A6 100%); color: white; 
+            padding: 25px; border-radius: 16px; z-index: 2000; width: 85%; max-width: 320px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 2px solid #4DA6FF; }
         .modal.active, .modal-overlay.active { display: block; }
-        .modal h4 { margin-top: 0; margin-bottom: 20px; text-align: center; color: #FFD700; font-size: 1.2em; }
-        .modal label { color: #FFA500; font-weight: bold; font-size: 0.9em; display: block; margin-top: 10px; }
+        .modal h4 { margin-top: 0; margin-bottom: 20px; text-align: center; color: #FFD700; font-size: 1.3em; }
+        .modal label { color: #FFD700; font-weight: bold; font-size: 0.9em; display: block; margin-top: 10px; }
         
-        .modal select, .modal input[type="text"], .modal input[type="number"] { width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; border: 2px solid #33CCFF; border-radius: 8px; background: #F0F5FF; font-family: 'Kanit', sans-serif; color: #0033FF; }
-        .modal select:focus, .modal input[type="text"]:focus, .modal input[type="number"]:focus { border-color: #FFD700; outline: none; background: linear-gradient(135deg, #F0F5FF 0%, #CCEEFF 100%); }
-        .modal input[type="file"] { margin: 5px 0 20px 0; width: 100%; font-size: 0.9em; color: white; }
+        /* ช่องกรอกข้อมูล คลีนๆ อ่านง่าย */
+        .modal select, .modal input[type="text"], .modal input[type="number"] { 
+            width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; 
+            border: 1px solid #99CCFF; border-radius: 8px; background: #FFFFFF; 
+            font-family: 'Kanit', sans-serif; color: #0A2A5E; font-size: 0.95em;
+        }
+        .modal select:focus, .modal input[type="text"]:focus, .modal input[type="number"]:focus { 
+            border-color: #FFD700; outline: none; box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); 
+        }
+        .modal input[type="file"] { margin: 5px 0 20px 0; width: 100%; font-size: 0.9em; color: #CCE6FF; }
         
         .btn-group { display: flex; justify-content: space-between; gap: 10px; }
-        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-family: 'Kanit', sans-serif; }
-        .btn-save { background: linear-gradient(135deg, #33FFCC 0%, #33EEFF 100%); color: #0033FF; }
-        .btn-save:hover { background: linear-gradient(135deg, #33EEFF 0%, #33CCFF 100%); }
-        .btn-cancel { background: #E6ECFF; color: #0033FF; }
-        .btn-cancel:hover { background: #B3CCFF; }
-        .btn:disabled { background: #99B3FF; cursor: not-allowed; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-family: 'Kanit', sans-serif; font-size: 1em; }
+        /* ปุ่ม Save สีเหลืองทองเด่นๆ */
+        .btn-save { background: #FFD700; color: #0A2A5E; }
+        .btn-save:hover { background: #FFC500; transform: scale(1.02); }
+        .btn-cancel { background: #E6F0FF; color: #0A2A5E; }
+        .btn-cancel:hover { background: #CCE0FF; }
+        .btn:disabled { background: #ccc; color: #666; cursor: not-allowed; transform: none; }
         
-        .popup-img { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid #e0e0e0; }
-        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 10px; width: 100%; font-family: 'Kanit', sans-serif; }
-        .btn-delete:hover { background: #cc0000; }
+        .popup-img { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid #ccc; }
+        .btn-delete { background: #FF4D4D; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 10px; width: 100%; font-family: 'Kanit', sans-serif; font-weight: bold; }
+        .btn-delete:hover { background: #E60000; }
 
-        .btn-location { position: absolute; bottom: 25px; right: 15px; z-index: 1000; background: linear-gradient(135deg, #0050FF 0%, #0033FF 100%); color: white; padding: 12px 18px; border: none; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid #3366FF; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: bold; font-size: 1em; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
-        .btn-location:hover { background: linear-gradient(135deg, #0033FF 0%, #0050FF 100%); transform: scale(1.05); }
+        /* 📍 ปุ่ม Location สีน้ำเงินทอง */
+        .btn-location { 
+            position: absolute; bottom: 25px; right: 15px; z-index: 1000; 
+            background: linear-gradient(135deg, #0A2A5E 0%, #1A56A6 100%); 
+            color: white; padding: 12px 18px; border: 2px solid #FFD700; border-radius: 30px; 
+            box-shadow: 0 4px 10px rgba(10, 42, 94, 0.4); cursor: pointer; 
+            font-family: 'Kanit', sans-serif; font-weight: bold; font-size: 1em; 
+            transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-location:hover { transform: scale(1.05); border-color: #FFFFFF; }
 
         @media only screen and (max-width: 600px) {
             .info-box { width: 180px; padding: 10px 15px; top: 10px; right: 10px; }
             .info-box h3 { font-size: 1.1em; }
             .instruction { font-size: 0.8em; }
             .modal { width: 90%; max-width: 300px; padding: 20px; }
-            .modal h4 { font-size: 1.1em; }
-            .modal label { font-size: 0.8em; }
+            .modal h4 { font-size: 1.2em; }
             .modal select, .modal input[type="text"], .modal input[type="number"] { padding: 8px; font-size: 0.9em; }
             .btn-location { padding: 10px 15px; font-size: 0.9em; bottom: 20px; right: 10px; }
         }
@@ -73,16 +90,16 @@
 
     <div class="info-box">
         <h3>🐶 TU Dog Spotter</h3>
-        <p class="instruction">👇 แแตะที่แผนที่เพื่อปักหมุด!</p>
-        <hr style="border-color: #3366FF; margin: 15px 0;">
+        <p class="instruction">👇 แตะที่แผนที่เพื่อปักหมุด!</p>
+        <hr style="border-color: #4DA6FF; margin: 15px 0;">
         
         <div id="auth-section">
             <button id="loginBtn" class="btn-google">🔑 ล็อกอินด้วย Google</button>
             <div id="userInfo" style="display: none; align-items: center; gap: 10px;">
-                <img id="userPic" src="" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid white;">
+                <img id="userPic" src="" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #FFD700;">
                 <div>
-                    <div id="userName" style="font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;"></div>
-                    <button id="logoutBtn" style="background: transparent; border: none; color: #FFB3B3; cursor: pointer; padding: 0; font-size: 0.8em; text-decoration: underline; font-family: 'Kanit', sans-serif;">ออกจากระบบ</button>
+                    <div id="userName" style="font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; color: #FFD700;"></div>
+                    <button id="logoutBtn" style="background: transparent; border: none; color: #CCE6FF; cursor: pointer; padding: 0; font-size: 0.8em; text-decoration: underline; font-family: 'Kanit', sans-serif;">ออกจากระบบ</button>
                 </div>
             </div>
         </div>
@@ -165,10 +182,10 @@
 
                 const marker = L.marker([lat, lng], {icon: dogIcon})
                     .bindPopup(`
-                        <b style="font-size:1.1em; color:#0033FF;">${name} (${count} ตัว) 🐶</b><br>
+                        <b style="font-size:1.1em; color:#0A2A5E;">${name} (${count} ตัว) 🐶</b><br>
                         <b>ลักษณะ:</b> ${desc}<br>
                         ${imageHtml}
-                        <div style="color:gray; font-size:0.8em; margin-top:5px;">เจอโดย: <b>${spotter}</b><br>อัปเดตเมื่อ: ${timeString}</div>
+                        <div style="color:gray; font-size:0.8em; margin-top:5px;">เจอโดย: <b style="color:#1A56A6;">${spotter}</b><br>อัปเดตเมื่อ: ${timeString}</div>
                         ${deleteBtnHtml}
                     `);
                 dogMarkersLayer.addLayer(marker);
@@ -199,7 +216,7 @@
 
         const map = L.map('map').setView([14.0686, 100.6067], 16);
         
-        // 🌟 เปลี่ยนแผนที่เป็นแบบสว่าง มีสีของต้นไม้และน้ำกำลังดี (CartoDB Voyager) 🌟
+        // 🌟 แผนที่ Voyager สว่าง สบายตา และมีสีของธรรมชาติ
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors & © CARTO'
@@ -214,7 +231,7 @@
                 navigator.geolocation.getCurrentPosition(function(position) {
                     map.setView([position.coords.latitude, position.coords.longitude], 17);
                     if (userMarker) userMarker.setLatLng([position.coords.latitude, position.coords.longitude]);
-                    else userMarker = L.circleMarker([position.coords.latitude, position.coords.longitude], { radius: 8, fillColor: "#33EEFF", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 0.9 }).addTo(map).bindPopup("📍 คุณอยู่ที่นี่").openPopup();
+                    else userMarker = L.circleMarker([position.coords.latitude, position.coords.longitude], { radius: 9, fillColor: "#1A56A6", color: "#FFD700", weight: 2, opacity: 1, fillOpacity: 0.9 }).addTo(map).bindPopup("📍 คุณอยู่ที่นี่").openPopup();
                 }, function() { alert("กรุณากดอนุญาตให้ GPS ของคุณก่อนนะครับ"); });
             }
         };
@@ -287,12 +304,12 @@
             var ua = navigator.userAgent || navigator.vendor || window.opera;
             if (ua.indexOf('Instagram') > -1 || ua.indexOf('Line') > -1) {
                 var alertBox = document.createElement('div');
-                alertBox.style.position = 'fixed'; alertBox.style.top = '0'; alertBox.style.left = '0'; alertBox.style.width = '100vw'; alertBox.style.height = '100vh'; alertBox.style.backgroundColor = 'rgba(0, 51, 255, 0.95)'; alertBox.style.color = 'white'; alertBox.style.zIndex = '9999'; alertBox.style.display = 'flex'; alertBox.style.flexDirection = 'column'; alertBox.style.justifyContent = 'center'; alertBox.style.alignItems = 'center'; alertBox.style.padding = '20px'; alertBox.style.textAlign = 'center'; alertBox.style.fontFamily = "'Kanit', sans-serif";
+                alertBox.style.position = 'fixed'; alertBox.style.top = '0'; alertBox.style.left = '0'; alertBox.style.width = '100vw'; alertBox.style.height = '100vh'; alertBox.style.backgroundColor = 'rgba(10, 42, 94, 0.95)'; alertBox.style.color = 'white'; alertBox.style.zIndex = '9999'; alertBox.style.display = 'flex'; alertBox.style.flexDirection = 'column'; alertBox.style.justifyContent = 'center'; alertBox.style.alignItems = 'center'; alertBox.style.padding = '20px'; alertBox.style.textAlign = 'center'; alertBox.style.fontFamily = "'Kanit', sans-serif";
                 alertBox.innerHTML = `
-                    <h2 style="font-size: 2em; margin-bottom: 10px;">🐶 ⚠️</h2>
-                    <h3 style="margin-bottom: 20px;">กรุณาเปิดในเบราว์เซอร์หลัก</h3>
-                    <p style="font-size: 1.1em; max-width: 300px;">เพื่อการใช้งานที่สมบูรณ์แบบและล็อกอินได้<br><br>กรุณากดไอคอน <b>จุด 3 จุด (...)</b> หรือ <b>เข็มทิศ</b> มุมหน้าจอ<br><br>แล้วเลือก <b>"เปิดในเบราว์เซอร์ (Open in Safari / Chrome)"</b></p>
-                    <button onclick="this.parentElement.style.display='none'" style="margin-top: 30px; padding: 10px 20px; background: white; color: #0033FF; border: none; border-radius: 8px; font-weight: bold; font-family: 'Kanit', sans-serif;">เข้าใจแล้ว</button>
+                    <h2 style="font-size: 2.5em; margin-bottom: 10px; color: #FFD700; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);">🐶 ⚠️</h2>
+                    <h3 style="margin-bottom: 20px; color: #FFFFFF;">กรุณาเปิดในเบราว์เซอร์หลัก</h3>
+                    <p style="font-size: 1.1em; max-width: 300px; color: #CCE6FF;">เพื่อการใช้งานที่สมบูรณ์แบบและล็อกอินได้<br><br>กรุณากดไอคอน <b>จุด 3 จุด (...)</b> หรือ <b>เข็มทิศ</b> มุมหน้าจอ<br><br>แล้วเลือก <b>"เปิดในเบราว์เซอร์ (Open in Safari / Chrome)"</b></p>
+                    <button onclick="this.parentElement.style.display='none'" style="margin-top: 30px; padding: 12px 25px; background: #FFD700; color: #0A2A5E; border: none; border-radius: 12px; font-weight: bold; font-family: 'Kanit', sans-serif; font-size: 1.1em; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">เข้าใจแล้ว</button>
                 `;
                 document.body.appendChild(alertBox);
             }
