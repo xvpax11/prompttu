@@ -10,10 +10,8 @@
         body { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #f0f4f8; }
         #map { width: 100vw; height: 100vh; cursor: crosshair; }
         
-        /* 🎨 ปรับสีแผนที่ให้คุมโทนน้ำเงิน */
         .leaflet-tile-pane { filter: saturate(1.2) contrast(1.05) hue-rotate(5deg); }
 
-        /* 💙 💛 กล่องข้อมูลหลัก: ธีมพรรคพร้อมธรรม */
         .info-box {
             position: absolute; top: 15px; right: 15px; z-index: 1000;
             background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%); color: white; 
@@ -23,39 +21,36 @@
         .info-box h3 { margin: 0 0 5px 0; font-size: 1.25em; text-align: center; color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
         .instruction { font-size: 0.85em; text-align: center; margin-bottom: 10px; color: #ffde59; font-weight: bold; }
         
-        /* ปุ่ม Login */
+        .social-contact { margin-top: 15px; text-align: center; font-size: 0.85em; }
+        .social-contact p { margin: 0 0 5px 0; color: #cccccc; font-size: 0.9em; }
+        .social-link { display: inline-block; color: #ffde59; text-decoration: none; margin: 3px 0; font-weight: bold; background: rgba(255, 222, 89, 0.1); padding: 5px 10px; border-radius: 20px; width: 90%; transition: 0.2s; border: 1px solid rgba(255, 222, 89, 0.3); }
+        .social-link:hover { background: #ffde59; color: #11135c; transform: scale(1.02); }
+
         .btn-google { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid #ffde59; padding: 10px 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; font-family: 'Kanit', sans-serif; transition: 0.2s; }
         .btn-google:hover { background: rgba(255, 222, 89, 0.2); transform: scale(1.02); }
 
         .animal-icon { font-size: 26px; text-align: center; line-height: 26px; drop-shadow: 0 2px 4px rgba(255,222,89,0.5); }
 
-        /* 💙 💛 หน้าต่าง Popup บนแผนที่ */
         .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-            background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%);
-            color: white;
-            border: 1px solid #ffde59;
+            background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%); color: white; border: 1px solid #ffde59;
         }
         .leaflet-popup-close-button { color: #ffde59 !important; text-shadow: none; }
 
-        /* 💙 💛 Modal กรอกข้อมูล */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 40, 0.85); z-index: 1999; backdrop-filter: blur(3px); }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%); color: white; 
             padding: 25px; border-radius: 16px; z-index: 2000; width: 85%; max-width: 320px; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); border: 2px solid #ffde59; 
-            max-height: 80vh; overflow-y: auto; 
+            max-height: 85vh; overflow-y: auto; 
         }
         .modal.active, .modal-overlay.active { display: block; }
         .modal h4 { margin-top: 0; margin-bottom: 20px; text-align: center; color: #ffde59; font-size: 1.4em; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); font-weight: 800;}
         .modal label { color: white; font-weight: bold; font-size: 0.9em; display: block; margin-top: 10px; }
         
-        /* 🌟 ช่องกรอกข้อมูล พื้นหลังโปร่งใส ขอบขาว/ทอง 🌟 */
         .modal select, .modal input[type="text"], .modal input[type="number"] { 
             width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0 10px 0; 
             border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; 
-            background: rgba(0, 0, 0, 0.2); 
-            font-family: 'Kanit', sans-serif; color: white; 
-            font-size: 0.95em; font-weight: normal;
+            background: rgba(0, 0, 0, 0.2); font-family: 'Kanit', sans-serif; color: white; font-size: 0.95em;
         }
         .modal select option { background: #11135c; color: white; } 
         .modal select:focus, .modal input[type="text"]:focus, .modal input[type="number"]:focus { 
@@ -65,25 +60,39 @@
         
         .btn-group { display: flex; justify-content: space-between; gap: 10px; }
         .btn { padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-family: 'Kanit', sans-serif; font-size: 1em; }
-        /* ปุ่ม Save สีเหลืองทองเด่นๆ */
         .btn-save { background: #ffde59; color: #11135c; border: none; }
         .btn-save:hover { background: #ffec8b; transform: scale(1.02); box-shadow: 0 0 10px rgba(255, 222, 89, 0.5); }
-        /* ปุ่ม Cancel ขอบขาว พื้นใส */
         .btn-cancel { background: transparent; color: white; border: 1px solid white; }
         .btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
-        .btn:disabled { background: transparent; border-color: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
         
-        .popup-img { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid #ffde59; }
-        .btn-delete { background: #DC143C; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 10px; width: 100%; font-family: 'Kanit', sans-serif; font-weight: bold; }
-        .btn-delete:hover { background: #B22222; }
+        /* 🌟 ปุ่มและสไตล์สำหรับ "ทำเนียบสัตว์" 🌟 */
+        .btn-registry { 
+            position: absolute; bottom: 25px; left: 15px; z-index: 1000; 
+            background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%); 
+            color: #ffde59; padding: 12px 18px; border: 2px solid #ffde59; border-radius: 30px; 
+            box-shadow: 0 4px 10px rgba(17, 19, 92, 0.6); cursor: pointer; 
+            font-family: 'Kanit', sans-serif; font-weight: bold; font-size: 1em; transition: 0.3s; 
+        }
+        .btn-registry:hover { transform: scale(1.05); background: #1e22aa; box-shadow: 0 4px 15px rgba(255, 222, 89, 0.4); }
+
+        .registry-list { max-height: 50vh; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
+        .registry-card { display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        .registry-card img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; border: 2px solid #ffde59; margin-right: 15px; flex-shrink: 0; }
+        .registry-info { text-align: left; }
+        .registry-name { color: #ffde59; font-weight: bold; font-size: 1.05em; margin: 0 0 3px 0; }
+        .registry-desc { color: #cccccc; font-size: 0.8em; margin: 0; line-height: 1.4; }
+        
+        /* Custom Scrollbar สำหรับรายชื่อ */
+        .registry-list::-webkit-scrollbar { width: 6px; }
+        .registry-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .registry-list::-webkit-scrollbar-thumb { background: #ffde59; border-radius: 10px; }
 
         .btn-location { 
             position: absolute; bottom: 25px; right: 15px; z-index: 1000; 
             background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%); 
             color: white; padding: 12px 18px; border: 2px solid #ffde59; border-radius: 30px; 
             box-shadow: 0 4px 10px rgba(17, 19, 92, 0.6); cursor: pointer; 
-            font-family: 'Kanit', sans-serif; font-weight: bold; font-size: 1em; 
-            transition: 0.3s; display: flex; align-items: center; gap: 8px;
+            font-family: 'Kanit', sans-serif; font-weight: bold; font-size: 1em; transition: 0.3s; 
         }
         .btn-location:hover { transform: scale(1.05); background: #1e22aa; box-shadow: 0 4px 15px rgba(255, 222, 89, 0.4); }
 
@@ -92,9 +101,8 @@
             .info-box h3 { font-size: 1.1em; }
             .instruction { font-size: 0.8em; }
             .modal { width: 90%; max-width: 300px; padding: 20px; }
-            .modal h4 { font-size: 1.2em; }
-            .modal select, .modal input[type="text"], .modal input[type="number"] { padding: 8px; font-size: 0.9em; }
             .btn-location { padding: 10px 15px; font-size: 0.9em; bottom: 20px; right: 10px; }
+            .btn-registry { padding: 10px 15px; font-size: 0.9em; bottom: 20px; left: 10px; }
         }
     </style>
 </head>
@@ -115,12 +123,21 @@
                 </div>
             </div>
         </div>
+
+        <div class="social-contact">
+            <hr style="border-color: rgba(255,222,89,0.3); margin: 15px 0 10px 0;">
+            <p>ติดตามพรรคพร้อมธรรม</p>
+            <a href="https://www.instagram.com/prompttu.party" target="_blank" class="social-link">📸 IG: @prompttu.party</a>
+            <a href="https://www.tiktok.com/@prompttu.party" target="_blank" class="social-link">🎵 TikTok: @prompttu.party</a>
+        </div>
     </div>
 
+    <button class="btn-registry" onclick="openRegistry()">📖 ทำเนียบน้องๆ มธ.</button>
     <button class="btn-location" onclick="locateUser()">📍 ตำแหน่งของฉัน</button>
     <div id="map"></div>
 
     <div class="modal-overlay" id="modalOverlay"></div>
+    
     <div class="modal" id="inputModal">
         <h4>ข้อมูลการเจอ</h4>
 
@@ -160,6 +177,12 @@
         </div>
     </div>
 
+    <div class="modal" id="registryModal">
+        <h4>📖 ทำเนียบน้องๆ ขาใหญ่ มธ.</h4>
+        <div id="registryList" class="registry-list"></div>
+        <button class="btn btn-cancel" onclick="closeRegistry()" style="margin-top: 15px; width: 100%;">ปิด</button>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script type="module">
@@ -169,7 +192,7 @@
         
         // 🛑 🌟 ใส่ Config ของ Firebase ตรงนี้ 🌟 🛑
         const firebaseConfig = {
-  apiKey: "AIzaSyCAdPb47V586FtJ1Mde-v3nhy4QN3Qj1i0",
+  apiKey: "6a5787ed71b7da00961d04d9a7a6ab21",
   authDomain: "tu-dog-spotter.firebaseapp.com",
   databaseURL: "https://tu-dog-spotter-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "tu-dog-spotter",
@@ -178,8 +201,7 @@
   appId: "1:857595973549:web:206633a42f2d487086db24"
         };
 
-        // 🛑 🌟 ใส่ API Key ของ ImgBB ตรงนี้ 🌟 🛑
-        const IMGBB_API_KEY = "6a5787ed71b7da00961d04d9a7a6ab21"; 
+        const IMGBB_API_KEY = "ใส่_API_KEY_ของ_IMGBB_ที่นี่"; 
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -189,23 +211,51 @@
         let currentUser = null;
         let globalAnimalsData = null;
 
+        // 🌟 ข้อมูลจำลอง "ทำเนียบสัตว์" 🌟 (สามารถเปลี่ยนลิงก์รูปเป็นรูปจริงได้เลย)
+        const animalRegistryData = [
+            { icon: "🐶", name: "เจ้าดำ ตึก SC", desc: "สุนัขสีดำตัวใหญ่ ชอบนอนรับแอร์หน้าเซเว่นตึก SC เป็นมิตรแต่ออกแนวหยิ่งนิดๆ", img: "https://ibb.co/x8ShR8X3" },
+            { icon: "🐶", name: "น้อนด่าง อินเตอร์โซน", desc: "สุนัขลายจุดขาวดำ ชอบวิ่งเล่นทักทายคนแถวอินเตอร์โซน", img: "https://placehold.co/150x150/11135c/ffde59?text=น้อนด่าง" },
+            { icon: "🐶", name: "เจ้าขาว หอสมุด", desc: "สุนัขสีขาวล้วน ชอบนอนเงียบๆ ให้คนลูบหัวหน้าหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffde59?text=เจ้าขาว" },
+            { icon: "🐱", name: "แมวส้ม สถาปัตย์", desc: "เจ้าถิ่นตึกสถาปัตย์ อ้วนกลม ร้องเก่ง ชอบนอนทับโปรเจกต์นักศึกษา", img: "https://placehold.co/150x150/11135c/ffde59?text=แมวส้ม" },
+            { icon: "🦎", name: "ตะกวด ริมน้ำ บร.", desc: "ตัวเงินตัวทองไซส์บิ๊กเบิ้ม มักพบเห็นนอนอาบแดดอย่างสงบตามริมสระน้ำ", img: "https://placehold.co/150x150/11135c/ffde59?text=พี่เหี้ย" }
+        ];
+
+        // 🌟 ฟังก์ชันเปิดหน้าต่างทำเนียบสัตว์ 🌟
+        window.openRegistry = function() {
+            const listDiv = document.getElementById('registryList');
+            listDiv.innerHTML = ""; // ล้างข้อมูลเก่าก่อน
+            
+            animalRegistryData.forEach(animal => {
+                listDiv.innerHTML += `
+                    <div class="registry-card">
+                        <img src="${animal.img}" alt="${animal.name}">
+                        <div class="registry-info">
+                            <p class="registry-name">${animal.icon} ${animal.name}</p>
+                            <p class="registry-desc">${animal.desc}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('registryModal').classList.add('active');
+        };
+
+        // 🌟 ฟังก์ชันปิดหน้าต่างทำเนียบสัตว์ 🌟
+        window.closeRegistry = function() {
+            document.getElementById('registryModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
         function getAnimalIcon(type) {
             let iconHtml = '🐶'; 
             if (type === 'cat') iconHtml = '🐱';
             else if (type === 'monitor_lizard') iconHtml = '🦎';
             
-            return L.divIcon({ 
-                html: iconHtml, 
-                className: 'animal-icon',
-                iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] 
-            });
+            return L.divIcon({ html: iconHtml, className: 'animal-icon', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] });
         }
 
-        const animalNamesTh = {
-            'dog': 'น้องหมา',
-            'cat': 'น้องแมว',
-            'monitor_lizard': 'ตัวเงินตัวทอง/ตะกวด'
-        };
+        const animalNamesTh = { 'dog': 'น้องหมา', 'cat': 'น้องแมว', 'monitor_lizard': 'ตัวเงินตัวทอง/ตะกวด' };
 
         function renderMapMarkers() {
             dogMarkersLayer.clearLayers(); 
@@ -259,11 +309,7 @@
             renderMapMarkers();
         });
 
-        document.getElementById('loginBtn').onclick = () => {
-            signInWithPopup(auth, provider).catch((error) => {
-                console.error("ล็อกอินไม่สำเร็จ:", error);
-            });
-        };
+        document.getElementById('loginBtn').onclick = () => { signInWithPopup(auth, provider).catch((error) => { console.error("ล็อกอินไม่สำเร็จ:", error); }); };
         document.getElementById('logoutBtn').onclick = () => { signOut(auth); };
 
         const map = L.map('map').setView([14.0686, 100.6067], 16);
@@ -285,7 +331,6 @@
         window.deleteAnimalMarker = function(markerKey, ownerUid) {
             if (!currentUser) return alert("กรุณาล็อกอินก่อนลบพิกัดนะครับ! 🔑");
             if (currentUser.uid !== ownerUid) return alert("❌ คุณสามารถลบได้เฉพาะพิกัดที่คุณเป็นคนปักเท่านั้นครับ!");
-            
             if(confirm("แน่ใจหรือไม่ว่าต้องการลบพิกัดนี้?")) {
                 const markerRef = ref(db, 'tu_animals/' + markerKey);
                 remove(markerRef).catch((error) => console.error(error));
@@ -293,10 +338,7 @@
         };
 
         const animalsRef = ref(db, 'tu_animals'); 
-        onValue(animalsRef, (snapshot) => {
-            globalAnimalsData = snapshot.val();
-            renderMapMarkers(); 
-        });
+        onValue(animalsRef, (snapshot) => { globalAnimalsData = snapshot.val(); renderMapMarkers(); });
 
         let tempLatLng = null;
         const modal = document.getElementById('inputModal');
@@ -305,11 +347,7 @@
         map.on('click', function(e) {
             if (!currentUser) return alert("กรุณาล็อกอินด้วย Google ก่อนปักหมุดนะครับ 🐶🔑");
             tempLatLng = e.latlng;
-            
-            if(currentUser && currentUser.displayName) {
-                document.getElementById('spotterNameInput').value = currentUser.displayName;
-            }
-
+            if(currentUser && currentUser.displayName) { document.getElementById('spotterNameInput').value = currentUser.displayName; }
             modal.classList.add('active'); overlay.classList.add('active');
         });
 
@@ -321,7 +359,7 @@
             document.getElementById('dogCount').value = '1';
             document.getElementById('spotterNameInput').value = ''; 
             document.getElementById('dogImage').value = ''; 
-            saveBtn.innerText = "บันทึกพิกัด"; saveBtn.disabled = false;
+            document.getElementById('saveBtn').innerText = "บันทึกพิกัด"; document.getElementById('saveBtn').disabled = false;
         }
 
         document.getElementById('cancelBtn').onclick = closeModal;
@@ -338,9 +376,7 @@
             const file = document.getElementById('dogImage').files[0];
             
             let inputSpotterName = document.getElementById('spotterNameInput').value.trim();
-            if (inputSpotterName === "") {
-                inputSpotterName = "พลเมืองดี";
-            }
+            if (inputSpotterName === "") { inputSpotterName = "พลเมืองดี"; }
 
             let downloadUrl = "";
 
@@ -354,20 +390,13 @@
 
                 await push(animalsRef, {
                     lat: tempLatLng.lat, lng: tempLatLng.lng,
-                    animalType: selectedAnimalType, 
-                    name: selectedName, 
-                    description: descInput || '-', 
-                    count: countInput,
-                    imageUrl: downloadUrl, 
-                    spotterName: inputSpotterName, 
-                    spotterUid: currentUser.uid,
-                    timestamp: Date.now()
+                    animalType: selectedAnimalType, name: selectedName, description: descInput || '-', 
+                    count: countInput, imageUrl: downloadUrl, spotterName: inputSpotterName, 
+                    spotterUid: currentUser.uid, timestamp: Date.now()
                 });
-                
                 closeModal();
             } catch (error) {
-                console.error(error);
-                alert("เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ");
+                console.error(error); alert("เกิดข้อผิดพลาด ลองใหม่อีกครั้งนะครับ");
                 saveBtn.innerText = "บันทึกพิกัด"; saveBtn.disabled = false;
             }
         };
