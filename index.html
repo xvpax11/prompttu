@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TU Animal Spotter - พิกัดน้องๆ ใน มธ.</title>
+    <title>Paw Radar TU</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -109,7 +109,7 @@
 <body>
 
     <div class="info-box">
-        <h3>🐾 พร้อมธรรม Spotter</h3>
+        <h3>🐾 Paw Radar TU 🐾</h3>
         <p class="instruction">👇 แตะที่แผนที่เพื่อปักหมุด!</p>
         <hr style="border-color: #ffde59; margin: 15px 0;">
         
@@ -132,7 +132,7 @@
         </div>
     </div>
 
-    <button class="btn-registry" onclick="openRegistry()">📖 ทำเนียบน้องๆ มธ.</button>
+    <button class="btn-registry" onclick="openRegistry()">📖 ทำเนียบน้อง ๆ </button>
     <button class="btn-location" onclick="locateUser()">📍 ตำแหน่งของฉัน</button>
     <div id="map"></div>
 
@@ -178,7 +178,7 @@
     </div>
 
     <div class="modal" id="registryModal">
-        <h4>📖 ทำเนียบน้องๆ ขาใหญ่ มธ.</h4>
+        <h4>📖 ทำเนียบน้องๆ ขาใหญ่ มธ.</h4> 
         <div id="registryList" class="registry-list"></div>
         <button class="btn btn-cancel" onclick="closeRegistry()" style="margin-top: 15px; width: 100%;">ปิด</button>
     </div>
@@ -252,7 +252,7 @@
             return L.divIcon({ html: iconHtml, className: 'animal-icon', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] });
         }
 
-        const animalNamesTh = { 'dog': 'น้องหมา', 'cat': 'น้องแมว', 'monitor_lizard': 'ตัวเงินตัวทอง/ตะกวด' };
+        const animalNamesTh = { 'dog': 'น้องหมา', 'cat': 'น้องแมว', 'monitor_lizard': 'ตัวเงินตัวทอง' };
 
         function renderMapMarkers() {
             dogMarkersLayer.clearLayers(); 
@@ -321,7 +321,7 @@
                     map.setView([position.coords.latitude, position.coords.longitude], 17);
                     if (userMarker) userMarker.setLatLng([position.coords.latitude, position.coords.longitude]);
                     else userMarker = L.circleMarker([position.coords.latitude, position.coords.longitude], { radius: 9, fillColor: "#11135c", color: "#ffde59", weight: 2, opacity: 1, fillOpacity: 0.9 }).addTo(map).bindPopup("📍 คุณอยู่ที่นี่").openPopup();
-                }, function() { alert("กรุณากดอนุญาตให้ GPS ของคุณก่อนนะครับ"); });
+                }, function() { alert("กรุณากดอนุญาตให้ GPS ของคุณก่อนครับ"); });
             }
         };
 
