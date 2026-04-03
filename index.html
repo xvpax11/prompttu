@@ -38,6 +38,17 @@
             background: linear-gradient(135deg, #11135c 0%, #1e22aa 100%); color: white; border: 1px solid #ffde59;
         }
         .leaflet-popup-close-button { color: white !important; text-shadow: none; }
+	/* 🛑 จำกัดขนาดรูปภาพในป๊อปอัป 🛑 */
+        .popup-img { 
+            display: block;
+            margin: 10px auto 0 auto; /* จัดกึ่งกลาง */
+            width: 100%; 
+            height: auto;
+            max-height: 120px; /* 🌟 ปรับเลขตรงนี้! จำกัดความสูงไม่ให้เกิน 120px 🌟 */
+            object-fit: cover; /* ครอบรูปให้สัดส่วนพอดี ไม่เบี้ยว */
+            border-radius: 8px; 
+            border: 1px solid #ffde59; 
+        }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 40, 0.85); z-index: 1999; backdrop-filter: blur(3px); }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
