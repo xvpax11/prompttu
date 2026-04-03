@@ -177,6 +177,7 @@
             <option value="cat">แมว 🐱</option>
             <option value="monitor_lizard">ตัวเงินตัวทอง 🦎</option>
 	   <option value="activities">กิจกรรม 🎪</option>
+	   <option value="labubu">ลาบูบู้ 🐰</option>
         </select>
         
         <label>ชื่อ/ลักษณะ (เลือกหรือพิมพ์เพิ่ม):</label>
@@ -209,6 +210,7 @@
             <option value="น้องกลอยใจ">น้องกลอยใจ</option>
             <option value="น้องเฟรนด์ลี่">น้องเฟรนด์ลี่</option>
             <option value="คุณนุ่มนิ่ม">คุณนุ่มนิ่ม</option>
+	   <option value="ลาบูบู้">ลาบูบู้</option>
         </select>
         <label>รายละเอียดเพิ่มเติม:</label>
         <input type="text" id="dogDesc" placeholder="เช่น ใส่ปลอกคอ, นอนอยู่ใต้พุ่มไม้">
@@ -291,7 +293,8 @@
             { icon: "🐱", name: "น้องต้องตา", desc: "เจ้าถิ่นหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffffff?text=ต้องตา" },
             { icon: "🐱", name: "น้องกลอยใจ", desc: "เจ้าถิ่นหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffffff?text=กลอยใจ" },
             { icon: "🐱", name: "น้องเฟรนด์ลี่", desc: "เจ้าถิ่นหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffffff?text=เฟรนด์ลี่" },
-            { icon: "🐱", name: "คุณนุ่มนิ่ม", desc: "เจ้าถิ่นหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffffff?text=นุ่มนิ่ม" }
+            { icon: "🐱", name: "คุณนุ่มนิ่ม", desc: "เจ้าถิ่นหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffffff?text=นุ่มนิ่ม" },
+	     { icon: "🐰", name: "คุณนุ่มนิ่ม", desc: "เจ้าถิ่นหอสมุดป๋วย", img: "https://placehold.co/150x150/11135c/ffffff?text=นุ่มนิ่ม" }
         ];
 
         window.openRegistry = function() {
@@ -323,6 +326,8 @@
             let iconHtml = '🐶'; 
             if (type === 'cat') iconHtml = '🐱';
             else if (type === 'monitor_lizard') iconHtml = '🦎';
+	      else if (type === 'activities') iconHtml = '🎪';
+	      else if (type === 'labubu') iconHtml = '🐰';
             
             return L.divIcon({ html: iconHtml, className: 'animal-icon', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -10] });
         }
